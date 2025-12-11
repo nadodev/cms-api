@@ -13,6 +13,7 @@ RUN apt-get update && apt-get install -y \
     zip \
     unzip \
     libzip-dev \
+    gosu \
     && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
@@ -22,13 +23,17 @@ RUN pecl install redis && docker-php-ext-enable redis
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
+# Copy entrypoint script
+COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
 # Copy existing application directory permissions
 COPY --chown=www-data:www-data . /var/www/html
 
-# Change current user to www-data
-USER www-data
-
-# Expose port 9000 and start php-fpm server
+# Expose port 9000
 EXPOSE 9000
+
+# Use entrypoint to fix permissions and then run command
+ENTRYPOINT ["docker-entrypoint.sh"]
 CMD ["php-fpm"]
 
