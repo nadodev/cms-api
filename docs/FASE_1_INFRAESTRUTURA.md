@@ -32,16 +32,19 @@
 **Arquivos criados**:
 - `docker-compose.yml` - Orquestração dos serviços
 - `Dockerfile` - Imagem PHP 8.4-FPM
+- `docker/nginx/nginx.conf` - Configuração principal do Nginx
+- `docker/nginx/default.conf` - Configuração do virtual host
 - `docker/php/local.ini` - Configurações PHP
 - `docker/mysql/my.cnf` - Configurações MySQL
 - `docker/redis/redis.conf` - Configurações Redis
 - `.dockerignore` - Arquivos ignorados no build
 
 **Serviços configurados**:
-1. **app** - Aplicação Laravel (PHP 8.4-FPM)
-2. **mysql** - Banco de dados MySQL 8.0
-3. **redis** - Cache e filas Redis 7
-4. **queue** - Worker de filas Laravel
+1. **nginx** - Servidor web Nginx (porta 8000)
+2. **app** - Aplicação Laravel (PHP 8.4-FPM)
+3. **mysql** - Banco de dados MySQL 8.0
+4. **redis** - Cache e filas Redis 7
+5. **queue** - Worker de filas Laravel
 
 **Volumes**:
 - `mysql_data` - Dados persistentes do MySQL
@@ -178,7 +181,7 @@ docker-compose down -v
 
 ### Acessar os serviços
 
-- **Aplicação Laravel**: http://localhost:8000
+- **Aplicação Laravel (via Nginx)**: http://localhost:8000
 - **MySQL**: localhost:3306
 - **Redis**: localhost:6379
 
@@ -223,12 +226,21 @@ A Fase 1 está completa. Próximas fases:
 - Policy: allkeys-lru
 - Persistência configurada
 
+### Nginx
+- Versão: Alpine (latest)
+- Porta: 80 (exposta como 8000)
+- Proxy para: PHP-FPM (app:9000)
+- Gzip: Habilitado
+- Client max body size: 40MB
+- Headers de segurança configurados
+
 ### PHP
 - Versão: 8.4-FPM
 - Upload max: 40MB
 - Post max: 40MB
 - Memory limit: 512MB
 - Extensões: pdo_mysql, mbstring, exif, pcntl, bcmath, gd, zip
+- Socket: 9000 (comunicação com Nginx)
 
 ---
 
