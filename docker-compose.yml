@@ -29,8 +29,10 @@ services:
     networks:
       - cms-network
     depends_on:
-      - mysql
-      - redis
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     environment:
       - DB_HOST=mysql
       - DB_PORT=3306
@@ -95,8 +97,10 @@ services:
     networks:
       - cms-network
     depends_on:
-      - mysql
-      - redis
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     environment:
       - DB_HOST=mysql
       - DB_PORT=3306
